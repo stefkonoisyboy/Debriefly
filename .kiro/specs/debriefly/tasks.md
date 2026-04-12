@@ -74,16 +74,16 @@ This implementation plan breaks down the Debriefly application into discrete cod
   - Verify API endpoints respond correctly
   - Ensure all tests pass, ask the user if questions arise
 
-- [ ] 9. Implement Flutter data models
-  - [ ] 9.1 Create Dart data models for Debrief and ActionItem
+- [x] 9. Implement Flutter data models
+  - [x] 9.1 Create Dart data models for Debrief and ActionItem
     - Create Debrief class with all fields
     - Create ActionItem class with description, owner, dueDate
     - Implement fromJson factory constructors
     - Implement toJson methods
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 10. Implement Flutter API service layer
-  - [ ] 10.1 Create DebriefService with dio HTTP client
+- [x] 10. Implement Flutter API service layer
+  - [x] 10.1 Create DebriefService with dio HTTP client
     - Configure dio with base URL and interceptors
     - Implement createDebrief(debrief): Future<Debrief>
     - Implement getDebriefs(): Future<List<Debrief>>
@@ -94,26 +94,14 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Add error handling for network failures
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-  - [ ]\* 10.2 Write unit tests for API service
-    - Test API methods with mock HTTP responses
-    - Test error handling for network failures
-    - Test error handling for 4xx and 5xx responses
-    - _Requirements: 8.7, 8.8_
-
-- [ ] 11. Implement Flutter state management
-  - [ ] 11.1 Create DebriefProvider or Notifier with Provider/Riverpod
+- [x] 11. Implement Flutter state management
+  - [x] 11.1 Create DebriefProvider or Notifier with Provider/Riverpod
     - Implement state for list of debriefs
     - Implement state for current debrief
     - Implement state for loading, error states
     - Implement methods: loadDebriefs(), createDebrief(), updateDebrief(), deleteDebrief()
     - Add error handling and state updates
     - _Requirements: 1.8, 1.9, 1.10, 3.1_
-
-  - [ ]\* 11.2 Write unit tests for state management
-    - Test state updates on successful operations
-    - Test error state handling
-    - Test loading state transitions
-    - _Requirements: 1.8, 1.9, 3.1_
 
 - [ ] 12. Implement Dashboard screen
   - [ ] 12.1 Create Dashboard UI with debrief list
