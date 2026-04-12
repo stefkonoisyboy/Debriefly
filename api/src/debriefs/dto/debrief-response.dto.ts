@@ -13,6 +13,7 @@ export class DebriefResponseDto {
   decisionsMade?: string | null;
   actionItems!: ActionItemResponseDto[];
   risksConcerns?: string | null;
+  status!: string;
   createdBy!: string;
   createdAt!: Date;
   updatedAt!: Date;

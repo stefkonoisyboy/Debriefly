@@ -9,6 +9,7 @@ class Debrief {
   final String? decisionsMade;
   final String? risksConcerns;
   final List<ActionItem> actionItems;
+  final String status;
   final String createdBy;
   final String createdAt;
   final String updatedAt;
@@ -22,6 +23,7 @@ class Debrief {
     this.decisionsMade,
     this.risksConcerns,
     required this.actionItems,
+    this.status = 'draft',
     required this.createdBy,
     required this.createdAt,
     required this.updatedAt,
@@ -44,6 +46,7 @@ class Debrief {
       decisionsMade: json['decisionsMade'] as String?,
       risksConcerns: json['risksConcerns'] as String?,
       actionItems: actionItems,
+      status: (json['status'] as String?) ?? 'draft',
       createdBy: json['createdBy'] as String,
       createdAt: json['createdAt'] as String,
       updatedAt: json['updatedAt'] as String,
@@ -60,6 +63,7 @@ class Debrief {
       'decisionsMade': decisionsMade,
       'risksConcerns': risksConcerns,
       'actionItems': actionItems.map((e) => e.toJson()).toList(),
+      'status': status,
       'createdBy': createdBy,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
@@ -75,6 +79,7 @@ class Debrief {
     String? decisionsMade,
     String? risksConcerns,
     List<ActionItem>? actionItems,
+    String? status,
     String? createdBy,
     String? createdAt,
     String? updatedAt,
@@ -88,6 +93,7 @@ class Debrief {
       decisionsMade: decisionsMade ?? this.decisionsMade,
       risksConcerns: risksConcerns ?? this.risksConcerns,
       actionItems: actionItems ?? this.actionItems,
+      status: status ?? this.status,
       createdBy: createdBy ?? this.createdBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

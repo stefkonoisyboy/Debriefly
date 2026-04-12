@@ -17,18 +17,16 @@ class DebriefProvider extends ChangeNotifier {
   List<Debrief> _debriefs = [];
   DebriefListStatus _listStatus = DebriefListStatus.initial;
   String? _listError;
-  final Set<String> _sentDebriefIds = {};
 
   List<Debrief> get debriefs => List.unmodifiable(_debriefs);
   DebriefListStatus get listStatus => _listStatus;
   String? get listError => _listError;
   bool get isListLoading => _listStatus == DebriefListStatus.loading;
 
-  bool isSent(String id) => _sentDebriefIds.contains(id);
-  int get sentCount =>
-      _debriefs.where((d) => _sentDebriefIds.contains(d.id)).length;
-  int get draftCount =>
-      _debriefs.where((d) => !_sentDebriefIds.contains(d.id)).length;
+  bool isSent(String id) =>
+      _debriefs.any((d) => d.id == id && d.status == 'sent');
+  int get sentCount => _debriefs.where((d) => d.status == 'sent').length;
+  int get draftCount => _debriefs.where((d) => d.status == 'draft').length;
 
   // ── Selected debrief state ───────────────────────────────────────────────────
 
@@ -168,7 +166,9 @@ class DebriefProvider extends ChangeNotifier {
 
     try {
       await _service.emailDebrief(id, request);
-      _sentDebriefIds.add(id);
+      _debriefs = [
+        for (final d in _debriefs) d.id == id ? d.copyWith(status: 'sent') : d,
+      ];
       _setActionSuccess();
       return true;
     } on ApiException catch (e) {

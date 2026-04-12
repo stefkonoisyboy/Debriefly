@@ -37,6 +37,9 @@ export class Debrief {
   @Column({ type: 'text', nullable: true })
   risksConcerns?: string | null;
 
+  @Column({ length: 10, default: 'draft' })
+  status!: string;
+
   @Column({ length: 255 })
   createdBy!: string;
 

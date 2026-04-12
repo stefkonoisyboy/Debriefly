@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -46,8 +47,9 @@ export class DebriefController {
   @Get()
   findAll(
     @Headers('x-user-id') userId?: string,
+    @Query('status') status?: string,
   ): Promise<DebriefResponseDto[]> {
-    return this.debriefService.findAll(userId ?? PLACEHOLDER_USER_ID);
+    return this.debriefService.findAll(userId ?? PLACEHOLDER_USER_ID, status);
   }
 
   /** GET /debriefs/:id — get a single debrief by id */

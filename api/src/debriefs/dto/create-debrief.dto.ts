@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsDateString,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -41,4 +42,9 @@ export class CreateDebriefDto {
   @IsString()
   @IsOptional()
   risksConcerns?: string;
+
+  @IsString()
+  @IsIn(['draft', 'sent'])
+  @IsOptional()
+  status?: string;
 }

@@ -14,9 +14,12 @@ export class DebriefService {
     private readonly debriefRepository: Repository<Debrief>,
   ) {}
 
-  async findAll(userId: string): Promise<DebriefResponseDto[]> {
+  async findAll(
+    userId: string,
+    status?: string,
+  ): Promise<DebriefResponseDto[]> {
     const debriefs = await this.debriefRepository.find({
-      where: { createdBy: userId },
+      where: { createdBy: userId, ...(status ? { status } : {}) },
       order: { meetingDate: 'DESC' },
     });
 

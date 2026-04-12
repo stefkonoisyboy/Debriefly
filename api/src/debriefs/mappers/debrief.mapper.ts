@@ -22,6 +22,7 @@ export function toDebriefResponseDto(entity: Debrief): DebriefResponseDto {
     decisionsMade: entity.decisionsMade ?? null,
     actionItems,
     risksConcerns: entity.risksConcerns ?? null,
+    status: entity.status,
     createdBy: entity.createdBy,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,

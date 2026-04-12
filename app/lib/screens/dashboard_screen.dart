@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../providers/providers.dart';
 import 'debrief_form_screen.dart';
+import 'detail_view_screen.dart';
 
 enum _FilterTab { all, draft, sent }
 
@@ -78,8 +79,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final all = provider.debriefs;
     final byStatus = switch (_activeFilter) {
       _FilterTab.all => all,
-      _FilterTab.sent => all.where((d) => provider.isSent(d.id)).toList(),
-      _FilterTab.draft => all.where((d) => !provider.isSent(d.id)).toList(),
+      _FilterTab.sent => all.where((d) => d.status == 'sent').toList(),
+      _FilterTab.draft => all.where((d) => d.status == 'draft').toList(),
     };
     if (_searchQuery.isEmpty) return byStatus;
     return byStatus.where((d) {
@@ -555,7 +556,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: _DebriefCard(
               debrief: debrief,
               isSent: provider.isSent(debrief.id),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => DetailViewScreen(debrief: debrief),
+                  ),
+                );
+              },
             ),
           );
         }, childCount: items.length),

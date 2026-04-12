@@ -34,6 +34,9 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
 
   DateTime? _meetingDate = DateTime.now();
 
+  // Status
+  String _status = 'draft';
+
   // Action items — each entry holds three controllers
   final List<_ActionItemEntry> _actionItems = [];
 
@@ -124,6 +127,7 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
           ? _risksCtrl.text.trim()
           : null,
       actionItems: actionItems.isNotEmpty ? actionItems : null,
+      status: _status,
     );
 
     final provider = context.read<DebriefProvider>();
@@ -163,6 +167,8 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
                   _buildClientNameField(),
                   const SizedBox(height: 20),
                   _buildMeetingDateField(),
+                  const SizedBox(height: 20),
+                  _buildStatusField(),
                   const SizedBox(height: 20),
                   _buildParticipantsField(),
                   const SizedBox(height: 20),
@@ -459,6 +465,37 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
               style: TextStyle(fontSize: 11, color: Color(0xFFEF4444)),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildStatusField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildFieldLabel('STATUS'),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _status,
+              isExpanded: true,
+              style: const TextStyle(fontSize: 14, color: _navy),
+              items: const [
+                DropdownMenuItem(value: 'draft', child: Text('Draft')),
+                DropdownMenuItem(value: 'sent', child: Text('Sent')),
+              ],
+              onChanged: (value) {
+                if (value != null) setState(() => _status = value);
+              },
+            ),
+          ),
+        ),
       ],
     );
   }
