@@ -103,8 +103,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Add error handling and state updates
     - _Requirements: 1.8, 1.9, 1.10, 3.1_
 
-- [ ] 12. Implement Dashboard screen
-  - [ ] 12.1 Create Dashboard UI with debrief list
+- [x] 12. Implement Dashboard screen
+  - [x] 12.1 Create Dashboard UI with debrief list
     - Create DashboardScreen widget
     - Create DebriefCard widget displaying clientName, meetingDate, summary preview
     - Implement card-based layout with dark navy, white, warm amber colors
@@ -113,20 +113,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Add EmptyState widget for no debriefs
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
-  - [ ]\* 12.2 Write property test for dashboard rendering completeness
-    - **Property 7: Dashboard Rendering Completeness**
-    - **Validates: Requirements 3.2, 3.3, 3.4**
-    - Generate random Debrief objects, render in dashboard, verify clientName, meetingDate, summary present
-
-  - [ ]\* 12.3 Write widget tests for Dashboard
-    - Test debrief list rendering
-    - Test empty state display
-    - Test navigation on card tap
-    - Test FAB navigation
-    - _Requirements: 3.1, 3.5, 3.6, 3.7_
-
-- [ ] 13. Implement search and filter functionality
-  - [ ] 13.1 Add search and date range filter to Dashboard
+- [x] 13. Implement search and filter functionality
+  - [x] 13.1 Add search and date range filter to Dashboard
     - Create SearchBar widget with text input
     - Create DateRangeFilter widget with date pickers
     - Implement client name filtering (case-insensitive)
@@ -135,24 +123,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Display "no results" message when filters match nothing
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [ ]\* 13.2 Write property test for search filter correctness
-    - **Property 5: Search Filter Correctness**
-    - **Validates: Requirements 4.2**
-    - Generate debriefs with various client names, apply search filter, verify only matching debriefs returned
-
-  - [ ]\* 13.3 Write property test for date range filter correctness
-    - **Property 6: Date Range Filter Correctness**
-    - **Validates: Requirements 4.4**
-    - Generate debriefs with various dates, apply date range filter, verify only debriefs in range returned
-
-  - [ ]\* 13.4 Write widget tests for search and filter
-    - Test search input updates filter
-    - Test date range selection updates filter
-    - Test no results message display
-    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
-
-- [ ] 14. Implement Debrief Form screen
-  - [ ] 14.1 Create form UI with all input fields
+- [x] 14. Implement Debrief Form screen
+  - [x] 14.1 Create form UI with all input fields
     - Create DebriefFormScreen widget
     - Create ClientNameField text input
     - Create MeetingDatePicker with current date default
@@ -165,7 +137,7 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Apply dark navy, white, warm amber color scheme
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
-  - [ ] 14.2 Implement form validation logic
+  - [x] 14.2 Implement form validation logic
     - Add required field validation for clientName
     - Add required field validation for meetingDate
     - Add required field validation for action item fields (description, owner, dueDate)
@@ -174,41 +146,13 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Highlight invalid fields with red border
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
 
-  - [ ] 14.3 Implement form submission and navigation
+  - [x] 14.3 Implement form submission and navigation
     - Enable submit button only when form is valid
     - Disable submit button when form is invalid
     - Submit form data to API on button press
     - Navigate to detail view on successful creation
     - Display error message on submission failure
     - _Requirements: 1.8, 1.9, 1.10, 10.6, 10.7_
-
-  - [ ]\* 14.4 Write property test for required field validation
-    - **Property 13: Required Field Validation**
-    - **Validates: Requirements 10.1, 10.2**
-    - Generate forms with missing clientName or meetingDate, verify validation fails
-
-  - [ ]\* 14.5 Write property test for action item validation
-    - **Property 14: Action Item Validation**
-    - **Validates: Requirements 10.3**
-    - Generate action items with missing fields, verify validation fails
-
-  - [ ]\* 14.6 Write property test for date format validation
-    - **Property 15: Date Format Validation**
-    - **Validates: Requirements 10.4**
-    - Generate invalid date strings, verify validation fails
-
-  - [ ]\* 14.7 Write property test for form submission state
-    - **Property 16: Form Submission State**
-    - **Validates: Requirements 10.6, 10.7**
-    - Generate various form states, verify submit button enabled/disabled correctly
-
-  - [ ]\* 14.8 Write widget tests for form
-    - Test form field rendering
-    - Test validation error display
-    - Test submit button enable/disable
-    - Test form submission
-    - Test navigation on success
-    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
 
 - [ ] 15. Checkpoint - Ensure frontend form tests pass
   - Run all Flutter widget tests and property tests for form
