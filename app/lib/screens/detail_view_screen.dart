@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/models.dart';
 import '../providers/providers.dart';
@@ -44,6 +47,28 @@ class DetailViewScreen extends StatelessWidget {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
+  }
+
+  static const String _shareBaseUrl = 'https://debriefly.app/debrief';
+
+  String get _shareableUrl {
+    if (kIsWeb) {
+      final base = Uri.base;
+      return '${base.scheme}://${base.host}${base.port != 0 && base.port != 80 && base.port != 443 ? ':${base.port}' : ''}/debrief/${debrief.id}';
+    }
+    return '$_shareBaseUrl/${debrief.id}';
+  }
+
+  Future<void> _shareDebrief(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _ShareBottomSheet(
+        debriefTitle: debrief.clientName,
+        shareUrl: _shareableUrl,
+      ),
+    );
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -239,20 +264,6 @@ class DetailViewScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                   ],
-
-                  // ── Shared With (only when sent) ───────────────────────────
-                  if (isSent) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: _SectionCard(
-                        icon: '📧',
-                        label: 'SHARED WITH',
-                        labelColor: const Color(0xFF6B7280),
-                        child: const _SharedWithSection(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
                 ],
               ),
             ),
@@ -261,14 +272,7 @@ class DetailViewScreen extends StatelessWidget {
           // ── Bottom Action Bar ──────────────────────────────────────────────
           _BottomActionBar(
             onDelete: () => _confirmDelete(context),
-            onShare: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Share functionality coming soon'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
+            onShare: () => _shareDebrief(context),
           ),
         ],
       ),
@@ -680,19 +684,158 @@ class _RisksCard extends StatelessWidget {
   }
 }
 
-// ── Shared With Section ───────────────────────────────────────────────────────
+// ── Share Bottom Sheet ────────────────────────────────────────────────────────
 
-class _SharedWithSection extends StatelessWidget {
-  const _SharedWithSection();
+class _ShareBottomSheet extends StatelessWidget {
+  final String debriefTitle;
+  final String shareUrl;
+
+  const _ShareBottomSheet({required this.debriefTitle, required this.shareUrl});
+
+  Future<void> _copyLink(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: shareUrl));
+    if (context.mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Link copied to clipboard'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _nativeShare() async {
+    await Share.share(
+      'Check out this debrief: $debriefTitle\n$shareUrl',
+      subject: 'Debrief: $debriefTitle',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Text(
-      'This debrief has been shared via email.',
-      style: TextStyle(
-        fontSize: 13,
-        color: Color(0xFF6B7280),
-        fontStyle: FontStyle.italic,
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Title
+          const Text(
+            'Share Debrief',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            debriefTitle,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+          ),
+          const SizedBox(height: 20),
+
+          // URL box
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.link_outlined,
+                  size: 16,
+                  color: Color(0xFF6B7280),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    shareUrl,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF374151),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Action buttons
+          Row(
+            children: [
+              // Copy Link
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _copyLink(context),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF1A1A2E),
+                    side: const BorderSide(color: Color(0xFFD1D5DB)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  icon: const Icon(Icons.copy_outlined, size: 18),
+                  label: const Text(
+                    'Copy Link',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Share via native sheet
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _nativeShare,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A1A2E),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  icon: const Icon(Icons.share_outlined, size: 18),
+                  label: const Text(
+                    'Share',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

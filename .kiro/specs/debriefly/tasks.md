@@ -159,8 +159,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
   - Verify form validation works correctly
   - Ensure all tests pass, ask the user if questions arise
 
-- [ ] 16. Implement Detail View screen
-  - [ ] 16.1 Create detail view UI with all debrief fields
+- [x] 16. Implement Detail View screen
+  - [x] 16.1 Create detail view UI with all debrief fields
     - Create DetailViewScreen widget
     - Create DebriefHeader displaying clientName and meetingDate
     - Create ParticipantsSection displaying participants list
@@ -171,19 +171,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Apply dark navy, white, warm amber color scheme with card layouts
     - _Requirements: 5.1, 5.2, 5.3, 5.5, 5.6, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
-  - [ ]\* 16.2 Write property test for detail view rendering completeness
-    - **Property 8: Detail View Rendering Completeness**
-    - **Validates: Requirements 5.1, 5.2, 5.3**
-    - Generate Debrief objects with all fields, render detail view, verify all fields present
-
-  - [ ]\* 16.3 Write widget tests for detail view
-    - Test all sections render correctly
-    - Test display of all debrief fields
-    - Test handling of optional fields
-    - _Requirements: 5.1, 5.2, 5.3, 5.5, 5.6_
-
-- [ ] 17. Implement shareable URL and copy link functionality
-  - [ ] 17.1 Add URL generation and copy link feature
+- [x] 17. Implement shareable URL and copy link functionality
+  - [x] 17.1 Add URL generation and copy link feature
     - Generate unique URLs with debrief ID in format /debriefs/:id
     - Add "Copy Link" button to detail view
     - Implement clipboard copy functionality
@@ -191,17 +180,6 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Configure routing to handle /debriefs/:id URLs
     - Load and display debrief when navigating to unique URL
     - _Requirements: 5.4, 6.1, 6.2, 6.3, 6.4, 6.5_
-
-  - [ ]\* 17.2 Write property test for URL generation and routing
-    - **Property 9: URL Generation and Routing**
-    - **Validates: Requirements 5.4, 6.2, 6.3, 6.4**
-    - Generate debrief IDs, create URLs, verify ID present in URL and routing works
-
-  - [ ]\* 17.3 Write widget tests for copy link
-    - Test copy link button renders
-    - Test clipboard copy on button press
-    - Test confirmation message display
-    - _Requirements: 6.1, 6.2, 6.5_
 
 - [ ] 18. Implement email sharing functionality
   - [ ] 18.1 Create email modal and email sending

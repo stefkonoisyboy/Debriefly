@@ -51,6 +51,9 @@ dependencies:
   # URL navigation
   url_launcher: ^6.3.0
 
+  # Native share sheet and copy link
+  share_plus: ^10.0.0
+
   # Routing
   go_router: ^14.0.0
 

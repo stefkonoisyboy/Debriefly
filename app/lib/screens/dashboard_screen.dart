@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../models/models.dart';
 import '../providers/providers.dart';
 import 'debrief_form_screen.dart';
-import 'detail_view_screen.dart';
 
 enum _FilterTab { all, draft, sent }
 
@@ -556,13 +556,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: _DebriefCard(
               debrief: debrief,
               isSent: provider.isSent(debrief.id),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => DetailViewScreen(debrief: debrief),
-                  ),
-                );
-              },
+              onTap: () => context.push('/debrief/${debrief.id}'),
             ),
           );
         }, childCount: items.length),
