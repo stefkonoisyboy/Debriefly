@@ -103,7 +103,10 @@ class _DebriefDeepLinkScreenState extends State<DebriefDeepLinkScreen> {
           return const SizedBox.shrink();
         }
 
-        return DetailViewScreen(debrief: debrief);
+        // If there's no previous route (e.g. opened via a shared URL directly),
+        // show in read-only mode. In-app navigation retains full controls.
+        final isDeepLink = !Navigator.of(context).canPop();
+        return DetailViewScreen(debrief: debrief, readOnly: isDeepLink);
       },
     );
   }

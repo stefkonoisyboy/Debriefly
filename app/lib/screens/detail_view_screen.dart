@@ -11,8 +11,13 @@ import 'debrief_form_screen.dart';
 
 class DetailViewScreen extends StatelessWidget {
   final Debrief debrief;
+  final bool readOnly;
 
-  const DetailViewScreen({super.key, required this.debrief});
+  const DetailViewScreen({
+    super.key,
+    required this.debrief,
+    this.readOnly = false,
+  });
 
   String _formatDate(String raw) {
     try {
@@ -182,31 +187,32 @@ class DetailViewScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Back navigation link
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.arrow_back,
-                            size: 16,
-                            color: Color(0xFF6B7280),
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Back to Debriefs',
-                            style: TextStyle(
-                              fontSize: 14,
+                  if (!readOnly)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.arrow_back,
+                              size: 16,
                               color: Color(0xFF6B7280),
-                              fontWeight: FontWeight.w500,
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 4),
+                            Text(
+                              'Back to Debriefs',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF6B7280),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 16),
 
                   // ── Header Card ────────────────────────────────────────────
@@ -298,11 +304,12 @@ class DetailViewScreen extends StatelessWidget {
           ),
 
           // ── Bottom Action Bar ──────────────────────────────────────────────
-          _BottomActionBar(
-            onDelete: () => _confirmDelete(context),
-            onShare: () => _shareDebrief(context),
-            onEmail: () => _showEmailModal(context),
-          ),
+          if (!readOnly)
+            _BottomActionBar(
+              onDelete: () => _confirmDelete(context),
+              onShare: () => _shareDebrief(context),
+              onEmail: () => _showEmailModal(context),
+            ),
         ],
       ),
     );
@@ -341,14 +348,11 @@ class DetailViewScreen extends StatelessWidget {
         ],
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.edit_outlined, color: Color(0xFF1A1A2E)),
-          onPressed: () => _editDebrief(context),
-        ),
-        IconButton(
-          icon: const Icon(Icons.menu, color: Color(0xFF1A1A2E)),
-          onPressed: () {},
-        ),
+        if (!readOnly)
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, color: Color(0xFF1A1A2E)),
+            onPressed: () => _editDebrief(context),
+          ),
       ],
     );
   }

@@ -477,12 +477,6 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.menu, color: _navy),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 

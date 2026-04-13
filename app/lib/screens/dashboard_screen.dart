@@ -163,12 +163,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.menu, color: Color(0xFF1A1A2E)),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
-      ],
     );
   }
 
