@@ -180,6 +180,20 @@ class DebriefProvider extends ChangeNotifier {
     }
   }
 
+  /// Extracts debrief fields from raw meeting notes using AI.
+  /// Returns an [AiExtractResult] on success, or `null` on failure.
+  Future<AiExtractResult?> extractDebriefFields(String notes) async {
+    try {
+      return await _service.extractDebriefFields(notes);
+    } on ApiException catch (e) {
+      _setActionError(e.message);
+      return null;
+    } catch (e) {
+      _setActionError(e.toString());
+      return null;
+    }
+  }
+
   /// Clears the currently selected debrief.
   void clearSelectedDebrief() {
     _selectedDebrief = null;

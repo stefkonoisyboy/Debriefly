@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DebriefModule } from './debriefs/debrief.module';
 import { EmailModule } from './email/email.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EmailModule } from './email/email.module';
     }),
     DebriefModule,
     EmailModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

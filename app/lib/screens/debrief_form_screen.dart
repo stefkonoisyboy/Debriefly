@@ -43,6 +43,11 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
   // Validation errors
   bool _submitted = false;
 
+  // AI Assist
+  bool _showAiPanel = false;
+  bool _isAiLoading = false;
+  final _aiNotesCtrl = TextEditingController();
+
   @override
   void dispose() {
     _clientNameCtrl.dispose();
@@ -53,6 +58,7 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
     for (final e in _actionItems) {
       e.dispose();
     }
+    _aiNotesCtrl.dispose();
     super.dispose();
   }
 
@@ -161,6 +167,10 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildPageHeader(),
+              if (_showAiPanel) ...[
+                const SizedBox(height: 16),
+                _buildAiAssistPanel(),
+              ],
               const SizedBox(height: 24),
               _buildCard(
                 children: [
@@ -186,6 +196,184 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _runAiExtract() async {
+    final notes = _aiNotesCtrl.text.trim();
+    if (notes.isEmpty) return;
+
+    setState(() => _isAiLoading = true);
+
+    final provider = context.read<DebriefProvider>();
+    final result = await provider.extractDebriefFields(notes);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isAiLoading = false;
+      if (result != null) {
+        if (result.clientName != null && result.clientName!.isNotEmpty) {
+          _clientNameCtrl.text = result.clientName!;
+        }
+        if (result.meetingDate != null) {
+          final parsed = DateTime.tryParse(result.meetingDate!);
+          if (parsed != null) _meetingDate = parsed;
+        }
+        if (result.participants != null && result.participants!.isNotEmpty) {
+          _participantsCtrl.text = result.participants!;
+        }
+        if (result.summary != null && result.summary!.isNotEmpty) {
+          _summaryCtrl.text = result.summary!;
+        }
+        if (result.decisionsMade != null && result.decisionsMade!.isNotEmpty) {
+          _decisionsCtrl.text = result.decisionsMade!;
+        }
+        if (result.risksConcerns != null && result.risksConcerns!.isNotEmpty) {
+          _risksCtrl.text = result.risksConcerns!;
+        }
+        if (result.actionItems != null && result.actionItems!.isNotEmpty) {
+          for (final e in _actionItems) {
+            e.dispose();
+          }
+          _actionItems.clear();
+          for (final item in result.actionItems!) {
+            final entry = _ActionItemEntry();
+            entry.descriptionCtrl.text = item.description;
+            entry.ownerCtrl.text = item.owner;
+            entry.dueDate = DateTime.tryParse(item.dueDate);
+            _actionItems.add(entry);
+          }
+        }
+        _showAiPanel = false;
+      }
+    });
+
+    if (result == null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.actionError ?? 'AI extraction failed'),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Widget _buildAiAssistPanel() {
+    return Container(
+      decoration: BoxDecoration(
+        color: _navy,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: _amber.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.auto_awesome, size: 18, color: _amber),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI Assist',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      'Paste notes & auto-extract debrief',
+                      style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white60, size: 20),
+                onPressed: () => setState(() => _showAiPanel = false),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _aiNotesCtrl,
+            minLines: 4,
+            maxLines: 8,
+            style: const TextStyle(fontSize: 13, color: Colors.white),
+            decoration: InputDecoration(
+              hintText:
+                  'Paste your raw meeting notes, transcript, or quick thoughts here...',
+              hintStyle: const TextStyle(
+                color: Color(0xFF6B7280),
+                fontSize: 13,
+              ),
+              filled: true,
+              fillColor: const Color(0xFF0F0F1A),
+              contentPadding: const EdgeInsets.all(14),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFF374151)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: _amber, width: 1.5),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _isAiLoading ? null : _runAiExtract,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _amber,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: _amber.withOpacity(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                elevation: 0,
+              ),
+              icon: _isAiLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.auto_awesome, size: 16),
+              label: Text(
+                _isAiLoading ? 'Extracting...' : 'Extract Debrief Fields',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -279,7 +467,7 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
         ),
         const SizedBox(width: 12),
         OutlinedButton.icon(
-          onPressed: () {},
+          onPressed: () => setState(() => _showAiPanel = !_showAiPanel),
           style: OutlinedButton.styleFrom(
             foregroundColor: _amber,
             side: const BorderSide(color: _amber, width: 1.5),

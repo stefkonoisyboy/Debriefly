@@ -4,3 +4,4 @@ export 'create_debrief_request.dart';
 export 'update_debrief_request.dart';
 export 'email_debrief_request.dart';
 export 'error_response.dart';
+export 'ai_extract_result.dart';

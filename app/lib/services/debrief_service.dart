@@ -84,6 +84,19 @@ class DebriefService {
     }
   }
 
+  /// Calls the AI endpoint to extract structured debrief fields from raw [notes].
+  Future<AiExtractResult> extractDebriefFields(String notes) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/ai/extract-debrief',
+        data: {'notes': notes},
+      );
+      return AiExtractResult.fromJson(response.data!);
+    } on DioException catch (e) {
+      throw _unwrap(e);
+    }
+  }
+
   /// Extracts an [ApiException] from a [DioException], falling back to a
   /// generic one when the interceptor has not already wrapped it.
   ApiException _unwrap(DioException e) {
