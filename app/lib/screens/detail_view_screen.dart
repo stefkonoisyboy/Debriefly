@@ -71,6 +71,22 @@ class DetailViewScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _showEmailModal(BuildContext context) async {
+    final sent = await showDialog<bool>(
+      context: context,
+      builder: (_) => _EmailModal(debrief: debrief),
+    );
+    if (sent == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debrief sent successfully'),
+          backgroundColor: Color(0xFF10B981),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   Future<void> _confirmDelete(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -273,6 +289,7 @@ class DetailViewScreen extends StatelessWidget {
           _BottomActionBar(
             onDelete: () => _confirmDelete(context),
             onShare: () => _shareDebrief(context),
+            onEmail: () => _showEmailModal(context),
           ),
         ],
       ),
@@ -841,13 +858,266 @@ class _ShareBottomSheet extends StatelessWidget {
   }
 }
 
+// ── Email Modal ───────────────────────────────────────────────────────────────
+
+class _EmailModal extends StatefulWidget {
+  final Debrief debrief;
+
+  const _EmailModal({required this.debrief});
+
+  @override
+  State<_EmailModal> createState() => _EmailModalState();
+}
+
+class _EmailModalState extends State<_EmailModal> {
+  final _recipientController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _isSending = false;
+  String? _fieldError;
+
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$',
+  );
+
+  List<String> get _recipients => _recipientController.text
+      .split(',')
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
+
+  String? _validateRecipients(String? value) {
+    final parts = (value ?? '')
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return 'Please enter at least one email address';
+    for (final email in parts) {
+      if (!_emailRegex.hasMatch(email)) {
+        return '"$email" is not a valid email address';
+      }
+    }
+    return null;
+  }
+
+  Future<void> _send(BuildContext context) async {
+    setState(
+      () => _fieldError = _validateRecipients(_recipientController.text),
+    );
+    if (_fieldError != null) return;
+
+    setState(() => _isSending = true);
+
+    final provider = context.read<DebriefProvider>();
+    final success = await provider.emailDebrief(
+      widget.debrief.id,
+      EmailDebriefRequest(
+        recipients: _recipients,
+        subject: 'Debrief: ${widget.debrief.clientName}',
+      ),
+    );
+
+    if (!mounted) return;
+    setState(() => _isSending = false);
+
+    if (success) {
+      Navigator.of(context).pop(true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.actionError ?? 'Failed to send email'),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _recipientController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title
+              const Text(
+                'Email Debrief',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                widget.debrief.clientName,
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+              ),
+              const SizedBox(height: 20),
+
+              // Recipients field
+              const Text(
+                'Recipients',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF374151),
+                ),
+              ),
+              const SizedBox(height: 6),
+              TextFormField(
+                controller: _recipientController,
+                keyboardType: TextInputType.emailAddress,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'email@example.com, another@example.com',
+                  hintStyle: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.email_outlined,
+                    size: 18,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                  errorText: _fieldError,
+                  filled: true,
+                  fillColor: const Color(0xFFF9FAFB),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF1A1A2E),
+                      width: 1.5,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFFEF4444)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFEF4444),
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                onChanged: (_) {
+                  if (_fieldError != null) {
+                    setState(() => _fieldError = null);
+                  }
+                },
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Separate multiple addresses with commas',
+                style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+              ),
+              const SizedBox(height: 24),
+
+              // Action buttons
+              Row(
+                children: [
+                  // Cancel
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _isSending
+                          ? null
+                          : () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF6B7280),
+                        side: const BorderSide(color: Color(0xFFD1D5DB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Send
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _isSending ? null : () => _send(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A1A2E),
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: const Color(
+                          0xFF1A1A2E,
+                        ).withOpacity(0.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      icon: _isSending
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.send_outlined, size: 18),
+                      label: Text(
+                        _isSending ? 'Sending…' : 'Send',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Bottom Action Bar ─────────────────────────────────────────────────────────
 
 class _BottomActionBar extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onShare;
+  final VoidCallback onEmail;
 
-  const _BottomActionBar({required this.onDelete, required this.onShare});
+  const _BottomActionBar({
+    required this.onDelete,
+    required this.onShare,
+    required this.onEmail,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -884,6 +1154,27 @@ class _BottomActionBar extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            // Email Debrief button
+            OutlinedButton.icon(
+              onPressed: onEmail,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF1A1A2E),
+                side: const BorderSide(color: Color(0xFFD1D5DB)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+              ),
+              icon: const Icon(Icons.email_outlined, size: 18),
+              label: const Text(
+                'Email',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+            ),
+            const SizedBox(width: 10),
             // Share Debrief button
             ElevatedButton.icon(
               onPressed: onShare,
@@ -894,13 +1185,13 @@ class _BottomActionBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
+                  horizontal: 16,
                   vertical: 14,
                 ),
               ),
               icon: const Icon(Icons.share_outlined, size: 18),
               label: const Text(
-                'Share Debrief',
+                'Share',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
             ),

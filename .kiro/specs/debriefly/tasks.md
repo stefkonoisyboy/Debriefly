@@ -181,8 +181,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Load and display debrief when navigating to unique URL
     - _Requirements: 5.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 18. Implement email sharing functionality
-  - [ ] 18.1 Create email modal and email sending
+- [x] 18. Implement email sharing functionality
+  - [x] 18.1 Create email modal and email sending
     - Create EmailModal dialog widget
     - Create RecipientField for email input (supports multiple addresses)
     - Add email address validation
@@ -193,16 +193,8 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Add "Email Debrief" button to detail view
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.7, 7.8_
 
-  - [ ]\* 18.2 Write widget tests for email modal
-    - Test modal display on button press
-    - Test recipient input
-    - Test email validation
-    - Test send button functionality
-    - Test confirmation and error messages
-    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.7, 7.8_
-
-- [ ] 19. Integration and end-to-end wiring
-  - [ ] 19.1 Wire all components together
+- [x] 19. Integration and end-to-end wiring
+  - [x] 19.1 Wire all components together
     - Connect Dashboard to API service
     - Connect Form to API service
     - Connect Detail View to API service
@@ -211,15 +203,7 @@ This implementation plan breaks down the Debriefly application into discrete cod
     - Verify error handling across all screens
     - _Requirements: 1.10, 3.5, 6.4_
 
-  - [ ]\* 19.2 Write E2E integration tests
-    - Test complete debrief creation flow
-    - Test dashboard search and filter flow
-    - Test detail view and sharing flow
-    - Test email sending flow
-    - Test error scenarios across flows
-    - _Requirements: 1.8, 1.9, 1.10, 3.1, 3.5, 4.2, 4.4, 5.4, 6.4, 7.4_
-
-- [ ] 20. Final checkpoint - Ensure all tests pass
+- [x] 20. Final checkpoint - Ensure all tests pass
   - Run all backend tests (unit, property, integration)
   - Run all frontend tests (unit, property, widget, E2E)
   - Verify all 16 correctness properties pass
