@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../models/models.dart';
 import '../providers/providers.dart';
+import 'debrief_form_screen.dart';
 
 class DetailViewScreen extends StatelessWidget {
   final Debrief debrief;
@@ -83,6 +84,17 @@ class DetailViewScreen extends StatelessWidget {
           backgroundColor: Color(0xFF10B981),
           behavior: SnackBarBehavior.floating,
         ),
+      );
+    }
+  }
+
+  Future<void> _editDebrief(BuildContext context) async {
+    final updated = await Navigator.of(context).push<Debrief>(
+      MaterialPageRoute(builder: (_) => DebriefFormScreen(debrief: debrief)),
+    );
+    if (updated != null && context.mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => DetailViewScreen(debrief: updated)),
       );
     }
   }
@@ -329,6 +341,10 @@ class DetailViewScreen extends StatelessWidget {
         ],
       ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.edit_outlined, color: Color(0xFF1A1A2E)),
+          onPressed: () => _editDebrief(context),
+        ),
         IconButton(
           icon: const Icon(Icons.menu, color: Color(0xFF1A1A2E)),
           onPressed: () {},

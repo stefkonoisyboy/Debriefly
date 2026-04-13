@@ -6,7 +6,9 @@ import '../models/models.dart';
 import '../providers/providers.dart';
 
 class DebriefFormScreen extends StatefulWidget {
-  const DebriefFormScreen({super.key});
+  final Debrief? debrief;
+
+  const DebriefFormScreen({super.key, this.debrief});
 
   @override
   State<DebriefFormScreen> createState() => _DebriefFormScreenState();
@@ -47,6 +49,30 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
   bool _showAiPanel = false;
   bool _isAiLoading = false;
   final _aiNotesCtrl = TextEditingController();
+
+  bool get _isEditMode => widget.debrief != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final d = widget.debrief;
+    if (d != null) {
+      _clientNameCtrl.text = d.clientName;
+      _meetingDate = DateTime.tryParse(d.meetingDate);
+      _status = d.status;
+      _participantsCtrl.text = d.participants ?? '';
+      _summaryCtrl.text = d.summary ?? '';
+      _decisionsCtrl.text = d.decisionsMade ?? '';
+      _risksCtrl.text = d.risksConcerns ?? '';
+      for (final item in d.actionItems) {
+        final entry = _ActionItemEntry();
+        entry.descriptionCtrl.text = item.description;
+        entry.ownerCtrl.text = item.owner;
+        entry.dueDate = DateTime.tryParse(item.dueDate);
+        _actionItems.add(entry);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -117,40 +143,78 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
       );
     }).toList();
 
-    final request = CreateDebriefRequest(
-      clientName: _clientNameCtrl.text.trim(),
-      meetingDate: DateFormat('yyyy-MM-dd').format(_meetingDate!),
-      participants: _participantsCtrl.text.trim().isNotEmpty
-          ? _participantsCtrl.text.trim()
-          : null,
-      summary: _summaryCtrl.text.trim().isNotEmpty
-          ? _summaryCtrl.text.trim()
-          : null,
-      decisionsMade: _decisionsCtrl.text.trim().isNotEmpty
-          ? _decisionsCtrl.text.trim()
-          : null,
-      risksConcerns: _risksCtrl.text.trim().isNotEmpty
-          ? _risksCtrl.text.trim()
-          : null,
-      actionItems: actionItems.isNotEmpty ? actionItems : null,
-      status: _status,
-    );
-
     final provider = context.read<DebriefProvider>();
-    final created = await provider.createDebrief(request);
 
-    if (!mounted) return;
-
-    if (created != null) {
-      Navigator.of(context).pop(created);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(provider.actionError ?? 'Failed to save debrief'),
-          backgroundColor: const Color(0xFFEF4444),
-          behavior: SnackBarBehavior.floating,
-        ),
+    if (_isEditMode) {
+      final request = UpdateDebriefRequest(
+        clientName: _clientNameCtrl.text.trim(),
+        meetingDate: DateFormat('yyyy-MM-dd').format(_meetingDate!),
+        participants: _participantsCtrl.text.trim().isNotEmpty
+            ? _participantsCtrl.text.trim()
+            : null,
+        summary: _summaryCtrl.text.trim().isNotEmpty
+            ? _summaryCtrl.text.trim()
+            : null,
+        decisionsMade: _decisionsCtrl.text.trim().isNotEmpty
+            ? _decisionsCtrl.text.trim()
+            : null,
+        risksConcerns: _risksCtrl.text.trim().isNotEmpty
+            ? _risksCtrl.text.trim()
+            : null,
+        actionItems: actionItems,
+        status: _status,
       );
+
+      final updated = await provider.updateDebrief(widget.debrief!.id, request);
+
+      if (!mounted) return;
+
+      if (updated != null) {
+        Navigator.of(context).pop(updated);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.actionError ?? 'Failed to update debrief'),
+            backgroundColor: const Color(0xFFEF4444),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } else {
+      final request = CreateDebriefRequest(
+        clientName: _clientNameCtrl.text.trim(),
+        meetingDate: DateFormat('yyyy-MM-dd').format(_meetingDate!),
+        participants: _participantsCtrl.text.trim().isNotEmpty
+            ? _participantsCtrl.text.trim()
+            : null,
+        summary: _summaryCtrl.text.trim().isNotEmpty
+            ? _summaryCtrl.text.trim()
+            : null,
+        decisionsMade: _decisionsCtrl.text.trim().isNotEmpty
+            ? _decisionsCtrl.text.trim()
+            : null,
+        risksConcerns: _risksCtrl.text.trim().isNotEmpty
+            ? _risksCtrl.text.trim()
+            : null,
+        actionItems: actionItems.isNotEmpty ? actionItems : null,
+        status: _status,
+      );
+
+      final created = await provider.createDebrief(request);
+
+      if (!mounted) return;
+
+      if (created != null) {
+        Navigator.of(context).pop(created);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.actionError ?? 'Failed to save debrief'),
+            backgroundColor: const Color(0xFFEF4444),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -449,18 +513,20 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'New Debrief',
-                style: TextStyle(
+              Text(
+                _isEditMode ? 'Edit Debrief' : 'New Debrief',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w800,
                   color: _navy,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Fill in the fields or use AI to extract from notes',
-                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+              Text(
+                _isEditMode
+                    ? 'Update the debrief details below'
+                    : 'Fill in the fields or use AI to extract from notes',
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
             ],
           ),
@@ -990,7 +1056,9 @@ class _DebriefFormScreenState extends State<DebriefFormScreen> {
                   )
                 : const Icon(Icons.save_outlined, size: 18),
             label: Text(
-              isLoading ? 'Saving...' : 'Save Debrief',
+              isLoading
+                  ? 'Saving...'
+                  : (_isEditMode ? 'Save Changes' : 'Save Debrief'),
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
           ),
